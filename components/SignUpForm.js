@@ -1,14 +1,14 @@
-import React, {useCallback, useReducer, useState, useEffect} from 'react';
+import React, { useCallback, useEffect, useReducer, useState } from 'react';
 import Input from '../components/Input';
 import SubmitButton from '../components/SubmitButton';
 import { Feather, FontAwesome } from '@expo/vector-icons';
+
 import { validateInput } from '../utils/actions/formActions';
 import { reducer } from '../utils/reducers/formReducer';
-import { signUp } from '../utils/actions/authAction';
-import { Alert, ActivityIndicator } from 'react-native';
+import { signUp } from '../utils/actions/authActions';
+import { ActivityIndicator, Alert } from 'react-native';
 import colors from '../constants/colors';
-import { useDispatch } from 'react-redux';
-
+import { useDispatch, useSelector } from 'react-redux';
 
 const initialState = {
     inputValues: {
@@ -18,7 +18,7 @@ const initialState = {
         password: "",
     },
     inputValidities: {
-        firstName: false, 
+        firstName: false,
         lastName: false,
         email: false,
         password: false,
@@ -30,90 +30,88 @@ const SignUpForm = props => {
 
     const dispatch = useDispatch();
 
-    const [error, setError] = useState(false);
-    const [isLoading, setIsLoading] = useState();
+    const [error, setError] = useState();
+    const [isLoading, setIsLoading] = useState(false);
     const [formState, dispatchFormState] = useReducer(reducer, initialState);
 
-    const inputChangeHandler = useCallback((inputId, inputValue) => {
+    const inputChangedHandler = useCallback((inputId, inputValue) => {
         const result = validateInput(inputId, inputValue);
-        dispatchFormState({validationResult : result, inputId: inputId, inputValue})
-    }, [dispatchFormState])
-
+        dispatchFormState({ inputId, validationResult: result, inputValue })
+    }, [dispatchFormState]);
 
     useEffect(() => {
-        if(error){
-            Alert.alert("An error occured", error)
+        if (error) {
+            Alert.alert("An error occured", error, [{ text: "Okay" }]);
         }
     }, [error])
 
-    const singUpHandler = useCallback(async() => {
+    const authHandler = useCallback(async () => {
         try {
-            setIsLoading(true)
+            setIsLoading(true);
 
             const action = signUp(
                 formState.inputValues.firstName,
                 formState.inputValues.lastName,
                 formState.inputValues.email,
                 formState.inputValues.password,
-            )
-
-
-            setError(null)
-            await dispatch(action)      
+            );
+            setError(null);
+            await dispatch(action);
         } catch (error) {
-            setIsLoading(false)
             setError(error.message);
-        } 
-
-    }, [dispatch, formState])
+            setIsLoading(false);
+        }
+    }, [dispatch, formState]);
 
     return (
             <>
                 <Input
-                    id='firstName'
+                    id="firstName"
                     label="First name"
                     icon="user-o"
-                    onInputChange={inputChangeHandler}
-                    errorText={formState.inputValidities['firstName']}
-                    iconPack={FontAwesome} />
+                    iconPack={FontAwesome}
+                    onInputChanged={inputChangedHandler}
+                    autoCapitalize="none"
+                    errorText={formState.inputValidities["firstName"]} />
 
                 <Input
-                    id='lastName'
+                    id="lastName"
                     label="Last name"
                     icon="user-o"
-                    onInputChange={inputChangeHandler}
-                    errorText={formState.inputValidities['lastName']}
-                    iconPack={FontAwesome} />
+                    iconPack={FontAwesome}
+                    onInputChanged={inputChangedHandler}
+                    autoCapitalize="none"
+                    errorText={formState.inputValidities["lastName"]} />
 
                 <Input
-                    id='email'
-                    autoCapitalize='none'
+                    id="email"
                     label="Email"
                     icon="mail"
-                    errorText={formState.inputValidities['email']}
-                    keyboardType='email-address'
-                    onInputChange={inputChangeHandler}
-                    iconPack={Feather} />
+                    iconPack={Feather}
+                    onInputChanged={inputChangedHandler}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    errorText={formState.inputValidities["email"]} />
 
                 <Input
-                    id='password'
+                    id="password"
                     label="Password"
-                    secureTextEntry
-                    autoCapitalize='none'
                     icon="lock"
-                    errorText={formState.inputValidities['password']}
-                    onInputChange={inputChangeHandler}
-                    iconPack={Feather} />
+                    autoCapitalize="none"
+                    secureTextEntry
+                    iconPack={Feather}
+                    onInputChanged={inputChangedHandler}
+                    errorText={formState.inputValidities["password"]} />
                 
                 {
-                    isLoading ? <ActivityIndicator size='small' color={colors.primary} style={{marginTop: 10}}/> :
+                    isLoading ? 
+                    <ActivityIndicator size={'small'} color={colors.primary} style={{ marginTop: 10 }} /> :
                     <SubmitButton
-                    title="Sign up"
-                    disabled={!formState.formIsValid}
-                    onPress={singUpHandler}
-                    style={{ marginTop: 20 }}/>
+                        title="Sign up"
+                        onPress={authHandler}
+                        style={{ marginTop: 20 }}
+                        disabled={!formState.formIsValid}/>
                 }
-      
             </>
     )
 };

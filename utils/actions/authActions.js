@@ -8,7 +8,6 @@ import { getUserData } from './userActions';
 let timer;
 
 export const signUp = (firstName, lastName, email, password) => {
-
     return async dispatch => {
         const app = getFirebaseApp();
         const auth = getAuth(app);
@@ -31,6 +30,7 @@ export const signUp = (firstName, lastName, email, password) => {
                 dispatch(userLogout());
             }, millisecondsUntilExpiry);
         } catch (error) {
+            console.log(error);
             const errorCode = error.code;
 
             let message = "Something went wrong.";
@@ -68,7 +68,6 @@ export const signIn = (email, password) => {
             }, millisecondsUntilExpiry);
 
         } catch (error) {
-            console.log('SINGIN', error)
             const errorCode = error.code;
 
             let message = "Something went wrong.";
