@@ -19,7 +19,7 @@ const authSlice = createSlice({
         },
         logout: (state, action) => {
             state.token = null;
-            state.userData = null;
+            state.userData = null; 
             state.didTryAutoLogin = false;
         },
         updateLoggedInUserData: (state, action) => {

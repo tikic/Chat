@@ -18,6 +18,7 @@ const ProfileImage = props => {
     const [isLoading, setIsLoading] = useState(false);
 
     const userId = props.userId;
+    const showEditButton = props.showEditButton && props.showEditButton === true
 
     const pickImage = async () => {
         try {
@@ -49,8 +50,9 @@ const ProfileImage = props => {
         }
     }
 
+
     return (
-        <TouchableOpacity onPress={pickImage}>
+        <TouchableOpacity onPress={pickImage} disabled={!showEditButton}>
 
             {
                 isLoading ?
@@ -62,9 +64,12 @@ const ProfileImage = props => {
                     source={image}/>
             }
 
-            <View style={styles.editIconContainer}>
+            {showEditButton && !isLoading &&
+                <View style={styles.editIconContainer}>
                 <FontAwesome name="pencil" size={15} color="black" />
-            </View>
+                </View>
+            }
+           
         </TouchableOpacity>
     )
 };

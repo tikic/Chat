@@ -9,8 +9,8 @@ import {Provider} from 'react-redux';
 import { store } from './store/store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-LogBox.ignoreLogs(['AsyncStorage has been extracted']);
-AsyncStorage.clear()
+LogBox.ignoreLogs(['Warning: Async Storage has been extracted from react-native core']);
+// AsyncStorage.clear()
 
 SplashScreen.preventAutoHideAsync();
 
