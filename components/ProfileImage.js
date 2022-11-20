@@ -17,8 +17,9 @@ const ProfileImage = props => {
     const [image, setImage] = useState(source);
     const [isLoading, setIsLoading] = useState(false);
 
+    const showEditButton = props.showEditButton && props.showEditButton === true;
+
     const userId = props.userId;
-    const showEditButton = props.showEditButton && props.showEditButton === true
 
     const pickImage = async () => {
         try {
@@ -29,11 +30,8 @@ const ProfileImage = props => {
             // Upload the image
             setIsLoading(true);
             const uploadUrl = await uploadImageAsync(tempUri);
-
-
-
             setIsLoading(false);
-     
+
             if (!uploadUrl) {
                 throw new Error("Could not upload image");
             }
@@ -42,6 +40,7 @@ const ProfileImage = props => {
 
             await updateSignedInUserData(userId, newData);
             dispatch(updateLoggedInUserData({ newData }));
+
             setImage({ uri: uploadUrl });
         }
         catch (error) {
@@ -50,9 +49,10 @@ const ProfileImage = props => {
         }
     }
 
+    const Container = showEditButton ? TouchableOpacity : View;
 
     return (
-        <TouchableOpacity onPress={pickImage} disabled={!showEditButton}>
+        <Container onPress={pickImage}>
 
             {
                 isLoading ?
@@ -64,13 +64,14 @@ const ProfileImage = props => {
                     source={image}/>
             }
 
-            {showEditButton && !isLoading &&
+            {
+                showEditButton && !isLoading &&
                 <View style={styles.editIconContainer}>
-                <FontAwesome name="pencil" size={15} color="black" />
+                    <FontAwesome name="pencil" size={15} color="black" />
                 </View>
             }
-           
-        </TouchableOpacity>
+
+        </Container>
     )
 };
 

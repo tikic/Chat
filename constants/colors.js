@@ -1,5 +1,6 @@
 export default {
     blue: "#3498db",
+    beige: '#FEF5C5',
     lightGrey: "#bdc3c7",
     extraLightGrey: '#ededed',
     nearlyWhite: "#F4F8F7",

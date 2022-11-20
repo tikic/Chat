@@ -1,31 +1,41 @@
-import { StyleSheet, Text, View, TouchableWithoutFeedback } from 'react-native'
-import React from 'react'
-import ProfileImage from './ProfileImage';
+import React from 'react';
+import { StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
 import colors from '../constants/colors';
+import ProfileImage from './ProfileImage';
 
-export default function DataItem(props) {
+const DataItem = props => {
 
-   const {title, subTitle, image} = props; 
+    const { title, subTitle, image } = props;
 
-  return (
-    <TouchableWithoutFeedback>
+    return (
+        <TouchableWithoutFeedback onPress={props.onPress}>
             <View style={styles.container}>
 
-                <ProfileImage size={40} uri={image}/>
-                <View style={styles.textContaner}>
+                <ProfileImage 
+                    uri={image}
+                    size={40}
+                />
 
-                    <Text numberOfLines={1}
-                        style={styles.title} >
-                           {title} 
+
+                <View style={styles.textContainer}>
+
+                    <Text
+                        numberOfLines={1}
+                        style={styles.title}>
+                        {title}
                     </Text>
 
-                    <Text style={styles.subTitle}>
+                    <Text
+                        numberOfLines={1}
+                        style={styles.subTitle}>
                         {subTitle}
                     </Text>
+
                 </View>
+
             </View>
-    </TouchableWithoutFeedback>
-  )
+        </TouchableWithoutFeedback>
+    )
 }
 
 const styles = StyleSheet.create({
@@ -37,18 +47,19 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         minHeight: 50
     },
-    textContaner:{
+    textContainer: {
         marginLeft: 14
     },
     title: {
         fontFamily: 'medium',
         fontSize: 16,
-        letterSpacing: .3
+        letterSpacing: 0.3
     },
     subTitle: {
         fontFamily: 'regular',
-        fontSize: 16,
         color: colors.grey,
-        letterSpacing: .3
+        letterSpacing: 0.3
     }
-})
+});
+
+export default DataItem;
