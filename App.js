@@ -8,6 +8,7 @@ import AppNavigator from './navigation/AppNavigator';
 import {Provider} from 'react-redux';
 import { store } from './store/store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {MenuProvider} from 'react-native-popup-menu';
 
 LogBox.ignoreLogs(['Warning: Async Storage has been extracted from react-native core']);
 AsyncStorage.clear()
@@ -64,7 +65,10 @@ export default function App() {
       style={styles.container}
       onLayout={onLayout}>
 
-        <AppNavigator />
+        <MenuProvider>
+          <AppNavigator />
+        </MenuProvider>
+
 
     </SafeAreaProvider>
     </Provider>
