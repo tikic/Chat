@@ -36,6 +36,7 @@ const ChatScreen = (props) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const flatList = useRef();
+  // console.log(chatUsers)
 
   const userData = useSelector(state => state.auth.userData);
   const storedUsers = useSelector(state => state.users.storedUsers);
@@ -60,6 +61,8 @@ const ChatScreen = (props) => {
     return messageList;
   });
 
+
+
   const chatData = (chatId && storedChats[chatId]) || props.route?.params?.newChatData;
 
   const getChatTitleFromName = () => {
@@ -69,9 +72,11 @@ const ChatScreen = (props) => {
     return otherUserData && `${otherUserData.firstName} ${otherUserData.lastName}`;
   }
 
+  const title = chatData.chatName ?? getChatTitleFromName();
+
   useEffect(() => {
     props.navigation.setOptions({
-      headerTitle: getChatTitleFromName()
+      headerTitle: title
     })
     setChatUsers(chatData.users)
   }, [chatUsers])
@@ -86,7 +91,7 @@ const ChatScreen = (props) => {
         setChatId(id);
       }
 
-      await sendTextMessage(chatId, userData.userId, messageText, replyingTo && replyingTo.key);
+      await sendTextMessage(id, userData.userId, messageText, replyingTo && replyingTo.key);
 
       setMessageText("");
       setReplyingTo(null);
@@ -182,6 +187,8 @@ const ChatScreen = (props) => {
                   const isOwnMessage = message.sentBy === userData.userId;
 
                   const messageType = isOwnMessage ? "myMessage" : "theirMessage";
+                  const sender = message.sentBy && storedUsers[message.sentBy];
+                  const name = sender && `${sender.firstName} ${sender.lastName}`;
 
 
                   return <Bubble
@@ -190,6 +197,7 @@ const ChatScreen = (props) => {
                             messageId={message.key}
                             userId={userData.userId}
                             chatId={chatId}
+                            name={!chatData.isGroupChat || isOwnMessage ? undefined : name}
                             date={message.sentAt}
                             setReply={() => setReplyingTo(message)}
                             replyingTo={message.replyTo && chatMessages.find(i => i.key === message.replyTo)}
@@ -198,8 +206,6 @@ const ChatScreen = (props) => {
                 }}
               />
             }
-
-
           </PageContainer>
 
           {

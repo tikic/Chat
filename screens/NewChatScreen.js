@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, StyleSheet, Button, TextInput, ActivityIndicator, FlatList } from 'react-native';
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
 import CustomHeaderButton from '../components/CustomHeaderButton';
@@ -10,15 +10,25 @@ import { searchUsers } from '../utils/actions/userActions';
 import DataItem from '../components/DataItem';
 import { useDispatch, useSelector } from 'react-redux';
 import { setStoredUsers } from '../store/userSlice';
+import ProfileImage from '../components/ProfileImage';
 
 const NewChatScreen = props => {
 
     const dispatch = useDispatch();
+    const storedUsers = useSelector(state => state.users.storedUsers)
 
     const [isLoading, setIsLoading] = useState(false);
     const [users, setUsers] = useState();
     const [noResultsFound, setNoResultsFound] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+    const [chatName, setChatName] = useState('');
+    const [selectedUsers, setSelectedUsers] = useState([]);
+
+    const flatList = useRef();
+
+
+    const isGroupChat = props.route.params && props.route.params.isGroupChat;
+    const isGroupChatDisabled = selectedUsers.length === 0 || chatName === ""
 
     const userData = useSelector(state => state.auth.userData);
 
@@ -31,9 +41,24 @@ const NewChatScreen = props => {
                         onPress={() => props.navigation.goBack()}/>
                 </HeaderButtons>
             },
-            headerTitle: "New chat"
+            headerRight: () => {
+                return <HeaderButtons HeaderButtonComponent={CustomHeaderButton}>
+
+                    {isGroupChat &&  <Item
+                        title="Create"
+                        color={isGroupChatDisabled ? colors.lightGrey : undefined}
+                        disabled={isGroupChatDisabled}
+                        onPress={() => props.navigation.navigate("ChatList", {
+                            selectedUsers,
+                            chatName
+                        })}/>
+                    }
+              
+                </HeaderButtons>
+            },
+            headerTitle: isGroupChat ? 'Add participants' : "New chat"
         })
-    }, []);
+    }, [chatName, selectedUsers]);
 
     useEffect(() => {
         const delaySearch = setTimeout(async () => {
@@ -65,12 +90,68 @@ const NewChatScreen = props => {
     }, [searchTerm]);
 
     const userPressed = userId => {
-        props.navigation.navigate("ChatList", {
-            selectedUserId: userId
-        })
+
+        if(isGroupChat) {
+            const newSelectedUsers = selectedUsers.includes(userId) ? 
+                    selectedUsers.filter(id => id !== userId) : selectedUsers.concat(userId)
+
+            setSelectedUsers(newSelectedUsers);
+        }else{
+            props.navigation.navigate("ChatList", {
+                selectedUserId: userId
+            })
+        }
+
+      
     }
     
     return <PageContainer>
+
+        {
+            isGroupChat && <>
+             <View style={styles.chatNameContainer}>
+                <View style={styles.inputContainer}>
+                    <TextInput 
+                        style={styles.textbox}
+                        placeholder='Enter a name for your chat'
+                        autoCorrect={false}
+                        value={chatName}
+                        onChangeText={(text) => setChatName(text)}
+                        />
+                </View>
+            </View>
+
+            {selectedUsers.length > 0 && <View style={styles.selectedUsersContainer}>
+                <FlatList 
+                    ref={ref => flatList.current = ref}
+                    onContentSizeChange={() => flatList.current.scrollToEnd()}
+                    style={styles.selectedUsersList}
+                    keyExtractor={item => item}
+                    data={selectedUsers}
+                    contentContainerStyle={{alignItems: 'center'}}
+                    horizontal={true}
+                    renderItem={itemData => {
+                        const userId = itemData.item;
+                        const userData = storedUsers[userId]
+                        return <ProfileImage 
+                                onPress={() => userPressed(userId)}
+                                size={40} 
+                                style={styles.selectedUserStyle}
+                                showRemoveButton={true}
+                                uri={userData.profilePicture}/>
+                    }
+                    }
+                />
+
+            </View>
+                }
+            </>
+           
+        }
+
+
+
+
         <View style={styles.searchContainer}>
             <FontAwesome name="search" size={15} color={colors.lightGrey} />
 
@@ -100,6 +181,8 @@ const NewChatScreen = props => {
                                 title={`${userData.firstName} ${userData.lastName}`}
                                 subTitle={userData.about}
                                 image={userData.profilePicture}
+                                isChecked={selectedUsers.includes(userId)}
+                                type={isGroupChat ? 'checkbox' : ''}
                                 onPress={() => userPressed(userId)}
                             />
                 }}
@@ -158,6 +241,35 @@ const styles = StyleSheet.create({
         color: colors.textColor,
         fontFamily: 'regular',
         letterSpacing: 0.3
+    },
+    chatNameContainer: {
+        paddingVertical: 10,
+    },
+    inputContainer: {
+        width: '100%',
+        paddingHorizontal: 10,
+        paddingVerical: 15,
+        backgroundColor: colors.nearlyWhite,
+        flexDirection: 'row',
+        borderRadius: 2
+    },
+    textbox: {
+        color: colors.textColor,
+        width: '100%',
+        fontFamily: 'regular',
+        letterSpacing: .3
+    }, 
+    selectedUsersContainer: {
+        height: 60,
+        justifyContent: 'center'
+    },
+    selectedUsersList: {
+        height: '100%',
+        paddingTop: 10
+    },
+    selectedUserStyle: {
+        marginRight: 10,
+        marginBottom: 10
     }
 })
 
