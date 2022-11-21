@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -25,6 +25,8 @@ import { createChat, sendImage, sendTextMessage } from "../utils/actions/chatAct
 import ReplyTo from "../components/ReplyTo";
 import { launchImagePicker, openCamera, uploadImageAsync } from "../utils/imagePickerHelper";
 import AwesomeAlert from 'react-native-awesome-alerts';
+import { HeaderButtons, Item } from "react-navigation-header-buttons";
+import CustomHeaderButton from "../components/CustomHeaderButton";
 
 const ChatScreen = (props) => {
   const [chatUsers, setChatUsers] = useState([]);
@@ -36,7 +38,6 @@ const ChatScreen = (props) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const flatList = useRef();
-  // console.log(chatUsers)
 
   const userData = useSelector(state => state.auth.userData);
   const storedUsers = useSelector(state => state.users.storedUsers);
@@ -61,8 +62,6 @@ const ChatScreen = (props) => {
     return messageList;
   });
 
-
-
   const chatData = (chatId && storedChats[chatId]) || props.route?.params?.newChatData;
 
   const getChatTitleFromName = () => {
@@ -76,7 +75,21 @@ const ChatScreen = (props) => {
 
   useEffect(() => {
     props.navigation.setOptions({
-      headerTitle: title
+      headerTitle: title,
+      headerRight: () => {
+        return <HeaderButtons HeaderButtonComponent={CustomHeaderButton}>
+          {
+            chatId && 
+            <Item
+              title="Chat settings"
+              iconName="settings-outline"
+              onPress={() => chatData.isGroupChat ?
+                props.navigation.navigate("") :
+                props.navigation.navigate("Contact", { uid: chatUsers.find(uid => uid !== userData.userId) })}
+            />
+          }
+        </HeaderButtons>
+      }
     })
     setChatUsers(chatData.users)
   }, [chatUsers])
@@ -114,8 +127,6 @@ const ChatScreen = (props) => {
     }
   }, [tempImageUri]);
 
-
-  
   const takePhoto = useCallback(async () => {
     try {
       const tempUri = await openCamera();
@@ -127,11 +138,11 @@ const ChatScreen = (props) => {
     }
   }, [tempImageUri]);
 
-
   const uploadImage = useCallback(async () => {
     setIsLoading(true);
 
     try {
+
       let id = chatId;
       if (!id) {
         // No chat Id. Create the chat
@@ -139,14 +150,13 @@ const ChatScreen = (props) => {
         setChatId(id);
       }
 
-
       const uploadUrl = await uploadImageAsync(tempImageUri, true);
       setIsLoading(false);
 
       await sendImage(id, userData.userId, uploadUrl, replyingTo && replyingTo.key)
       setReplyingTo(null);
-
-      setTimeout(() => setTempImageUri(''), 500)
+      
+      setTimeout(() => setTempImageUri(""), 500);
       
     } catch (error) {
       console.log(error);
@@ -156,10 +166,7 @@ const ChatScreen = (props) => {
 
   return (
     <SafeAreaView edges={["right", "left", "bottom"]} style={styles.container}>
-      <KeyboardAvoidingView
-        style={styles.screen}
-        behavior={ Platform.OS === "ios" ? "padding" : undefined}
-        keyboardVerticalOffset={100}>
+      
         <ImageBackground
           source={backgroundImage}
           style={styles.backgroundImage}
@@ -178,8 +185,8 @@ const ChatScreen = (props) => {
               chatId && 
               <FlatList
                 ref={(ref) => flatList.current = ref}
-                onContentSizeChange={() => flatList.current.scrollToEnd({animated: false})}
-                onLayout={() => flatList.current.scrollToEnd({animated: false})}
+                onContentSizeChange={() => flatList.current.scrollToEnd({ animated: false })}
+                onLayout={() => flatList.current.scrollToEnd({ animated: false })}
                 data={chatMessages}
                 renderItem={(itemData) => {
                   const message = itemData.item;
@@ -187,9 +194,9 @@ const ChatScreen = (props) => {
                   const isOwnMessage = message.sentBy === userData.userId;
 
                   const messageType = isOwnMessage ? "myMessage" : "theirMessage";
+
                   const sender = message.sentBy && storedUsers[message.sentBy];
                   const name = sender && `${sender.firstName} ${sender.lastName}`;
-
 
                   return <Bubble
                             type={messageType}
@@ -197,8 +204,8 @@ const ChatScreen = (props) => {
                             messageId={message.key}
                             userId={userData.userId}
                             chatId={chatId}
-                            name={!chatData.isGroupChat || isOwnMessage ? undefined : name}
                             date={message.sentAt}
+                            name={!chatData.isGroupChat || isOwnMessage ? undefined : name}
                             setReply={() => setReplyingTo(message)}
                             replyingTo={message.replyTo && chatMessages.find(i => i.key === message.replyTo)}
                             imageUrl={message.imageUrl}
@@ -206,6 +213,8 @@ const ChatScreen = (props) => {
                 }}
               />
             }
+
+
           </PageContainer>
 
           {
@@ -283,7 +292,6 @@ const ChatScreen = (props) => {
 
 
         </View>
-      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };

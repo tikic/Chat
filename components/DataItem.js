@@ -1,8 +1,8 @@
-import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
 import colors from '../constants/colors';
 import ProfileImage from './ProfileImage';
+import { Ionicons } from '@expo/vector-icons';
 
 const DataItem = props => {
 
@@ -35,11 +35,18 @@ const DataItem = props => {
                 </View>
 
 
-                {type === 'checkbox' && 
-                <View style={{...styles.iconContainer, ...isChecked && styles.checkedStyle}}>
-                            <Ionicons name='checkmark' size={18} color='white'/>
-                </View>
+                {
+                    type === "checkbox" &&
+                    <View style={{ ...styles.iconContainer, ...isChecked && styles.checkedStyle }}>
+                        <Ionicons name="checkmark" size={18} color="white" />
+                    </View>
+                }
 
+                {
+                    type === "link" &&
+                    <View>
+                        <Ionicons name="chevron-forward-outline" size={18} color={colors.grey} />
+                    </View>
                 }
 
             </View>
