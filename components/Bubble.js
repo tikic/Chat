@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
+import { Image, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
 import colors from '../constants/colors';
 import { Menu, MenuTrigger, MenuOptions, MenuOption } from 'react-native-popup-menu';
 import uuid from 'react-native-uuid';
@@ -32,7 +32,7 @@ const MenuItem = props => {
 }
 
 const Bubble = props => {
-    const { text, type, messageId, chatId, userId, date, setReply, replyingTo, name} = props;
+    const { text, type, messageId, chatId, userId, date, setReply, replyingTo, name, imageUrl } = props;
 
     const starredMessages = useSelector(state => state.messages.starredMessages[chatId] ?? {});
     const storedUsers = useSelector(state => state.users.storedUsers);
@@ -73,11 +73,9 @@ const Bubble = props => {
             Container = TouchableWithoutFeedback;
             isUserMessage = true;
             break;
-
-        case 'reply':
-            bubbleStyle.backgroundColor = '#F2F2F2'
-            break;    
-    
+        case "reply":
+            bubbleStyle.backgroundColor = '#F2F2F2';
+            break;
         default:
             break;
     }
@@ -99,24 +97,30 @@ const Bubble = props => {
                 <View style={bubbleStyle}>
 
                     {
-                        name && <Text style={styles.name}>{name}</Text>
+                        name &&
+                        <Text style={styles.name}>{name}</Text>
                     }
 
-
                     {
-                        replyingToUser && 
-                        
+                        replyingToUser &&
                         <Bubble
                             type='reply'
                             text={replyingTo.text}
                             name={`${replyingToUser.firstName} ${replyingToUser.lastName}`}
                         />
-
                     }
 
-                    <Text style={textStyle}>
-                        {text}
-                    </Text>
+                    {
+                        !imageUrl &&
+                        <Text style={textStyle}>
+                            {text}
+                        </Text>
+                    }
+
+                    {
+                        imageUrl &&
+                        <Image source={{ uri: imageUrl }} style={styles.image} />
+                    }
 
                 {
                     dateString && <View style={styles.timeContainer}>
@@ -131,7 +135,8 @@ const Bubble = props => {
                     <MenuOptions>
                         <MenuItem text='Copy to clipboard' icon={'copy'} onSelect={() => copyToClipboard(text)} />
                         <MenuItem text={`${isStarred ? 'Unstar' : 'Star'} message`} icon={isStarred ? 'star-o' : 'star'} iconPack={FontAwesome} onSelect={() => starMessage(messageId, chatId, userId)} />
-                        <MenuItem text='Reply' icon={'arrow-left-circle'} onSelect={props.setReply} />
+                        <MenuItem text='Reply' icon='arrow-left-circle' onSelect={setReply} />
+                        
                     </MenuOptions>
                 </Menu>
 
@@ -181,7 +186,12 @@ const styles = StyleSheet.create({
     },
     name: {
         fontFamily: 'medium',
-        letterSpacing: .3
+        letterSpacing: 0.3
+    },
+    image: {
+        width: 300,
+        height: 300,
+        marginBottom: 5
     }
 })
 

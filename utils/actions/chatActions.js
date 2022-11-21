@@ -1,4 +1,4 @@
-import { child, get, getDatabase, push, ref, update, set, remove } from "firebase/database";
+import { child, get, getDatabase, push, ref, remove, set, update } from "firebase/database";
 import { getFirebaseApp } from "../firebaseHelper";
 
 export const createChat = async (loggedInUserId, chatData) => {
@@ -24,21 +24,31 @@ export const createChat = async (loggedInUserId, chatData) => {
     return newChat.key;
 }
 
+export const sendTextMessage = async (chatId, senderId, messageText, replyTo) => {
+    await sendMessage(chatId, senderId, messageText, null, replyTo);
+}
 
-export const sendTextMessage = async(chatId, senderId, messageText, replyTo) => {
+export const sendImage = async (chatId, senderId, imageUrl, replyTo) => {
+    await sendMessage(chatId, senderId, 'Image', imageUrl, replyTo);
+}
 
+const sendMessage = async (chatId, senderId, messageText, imageUrl, replyTo) => {
     const app = getFirebaseApp();
-    const dbRef = ref(getDatabase(app));
+    const dbRef = ref(getDatabase());
     const messagesRef = child(dbRef, `messages/${chatId}`);
 
     const messageData = {
         sentBy: senderId,
         sentAt: new Date().toISOString(),
         text: messageText
+    };
+
+    if (replyTo) {
+        messageData.replyTo = replyTo;
     }
 
-    if(replyTo) {
-        messageData.replyTo = replyTo;
+    if (imageUrl) {
+        messageData.imageUrl = imageUrl;
     }
 
     await push(messagesRef, messageData);
@@ -48,36 +58,32 @@ export const sendTextMessage = async(chatId, senderId, messageText, replyTo) => 
         updatedBy: senderId,
         updatedAt: new Date().toISOString(),
         latestMessageText: messageText
-    })
+    });
 }
 
-
-export const starMessage = async(messageId, chatId, userId) => {
-      try {
+export const starMessage = async (messageId, chatId, userId) => {
+    try {
         const app = getFirebaseApp();
         const dbRef = ref(getDatabase(app));
+        const childRef = child(dbRef, `userStarredMessages/${userId}/${chatId}/${messageId}`);
 
-        const childRef = child(dbRef, `userStarredMessages/${userId}/${chatId}/${messageId}`)
+        const snapshot = await get(childRef);
 
-        const snapshot = await get(childRef)
-        
-
-        if(snapshot.exists()){
-            // Starred item exist - Un-star
-
-            await remove(childRef)
-        }else{
-            // Starred item doen not exit - star
+        if (snapshot.exists()) {
+            // Starred item exists - Un-star
+            await remove(childRef);
+        }
+        else {
+            // Starred item does not exist - star
             const starredMessageData = {
                 messageId,
                 chatId,
-                starreAt: new Date().toISOString()
+                starredAt: new Date().toISOString()
             }
 
             await set(childRef, starredMessageData);
-
         }
-      } catch (error) {
-        console.log(error)
-      }  
+    } catch (error) {
+        console.log(error);        
+    }
 }
