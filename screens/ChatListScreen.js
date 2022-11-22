@@ -11,7 +11,7 @@ import colors from '../constants/colors';
 const ChatListScreen = props => {
 
     const selectedUser = props.route?.params?.selectedUserId;
-    const selectedUsers= props.route?.params?.selectedUsers;
+    const selectedUserList = props.route?.params?.selectedUsers;
     const chatName = props.route?.params?.chatName;
 
     const userData = useSelector(state => state.auth.userData);
@@ -38,36 +38,36 @@ const ChatListScreen = props => {
 
     useEffect(() => {
 
-        if (!selectedUser && !selectedUsers) {
+        if (!selectedUser && !selectedUserList) {
             return;
         }
 
         let chatData;
         let navigationProps;
 
-        if(selectedUser){
+        if (selectedUser) {
             chatData = userChats.find(cd => !cd.isGroupChat && cd.users.includes(selectedUser))
         }
 
-        if(chatData){
-            navigationProps = {chatId: chatData.key}
-
-        }else {
-
-            const chatUsers = selectedUsers || [selectedUser, userData.userId];
-
-            if(!chatUsers.includes(userData.userId)){
-                chatUsers.push(userData.userId)
+        if (chatData) {
+            navigationProps = { chatId: chatData.key }
+        }
+        else {
+            const chatUsers = selectedUserList || [selectedUser];
+            if (!chatUsers.includes(userData.userId)){
+                chatUsers.push(userData.userId);
             }
-    
+
             navigationProps = {
-                newChatData: { 
+                newChatData: {
                     users: chatUsers,
-                    isGroupChat: selectedUsers !== undefined,
+                    isGroupChat: selectedUserList !== undefined,
                     chatName
                 }
+            }
         }
-        }
+        
+        
 
         props.navigation.navigate("ChatScreen", navigationProps);
 
@@ -90,24 +90,23 @@ const ChatListScreen = props => {
                     const chatId = chatData.key;
                     const isGroupChat = chatData.isGroupChat;
 
-                    let title= '';
+                    let title = "";
                     const subTitle = chatData.latestMessageText || "New chat";
-                    let image = '';
+                    let image = "";
 
-                    if(isGroupChat){
-                        title = chatData.chatName;
+                    if (isGroupChat) {
+                        title = chatData.chatName;  
                         image = chatData.chatImage;
-                    }else{
+                    }
+                    else {
                         const otherUserId = chatData.users.find(uid => uid !== userData.userId);
                         const otherUser = storedUsers[otherUserId];
-    
+
                         if (!otherUser) return;
-    
+
                         title = `${otherUser.firstName} ${otherUser.lastName}`;
                         image = otherUser.profilePicture;
                     }
-                    
-               
 
                     return <DataItem
                                 title={title}

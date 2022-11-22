@@ -8,34 +8,45 @@ const imageSize = 40;
 
 const DataItem = props => {
 
-    const { title, subTitle, image, type, isChecked, icon, button } = props;
+    const { title, subTitle, image, type, isChecked, icon } = props;
 
     return (
         <TouchableWithoutFeedback onPress={props.onPress}>
             <View style={styles.container}>
 
-                
-                {!icon && <ProfileImage 
-                    uri={image}
-                    size={imageSize}
-                />
-                }   
+                {
+                    !icon &&
+                    <ProfileImage 
+                        uri={image}
+                        size={imageSize}
+                    />
+                }
 
-                {icon && <View style={styles.leftIconContainer}>
-                    <AntDesign name={icon} size={20} color={colors.blue} />
-                </View>
-
+                {
+                    icon &&
+                    <View style={styles.leftIconContainer}>
+                        <AntDesign name={icon} size={20} color={colors.blue} />
+                    </View>
                 }
 
 
                 <View style={styles.textContainer}>
+
                     <Text
                         numberOfLines={1}
-                        style={{...styles.title, ...{color: type === 'button' ? colors.blue : colors.textColor}}}>
+                        style={{ ...styles.title, ...{ color: type === "button" ? colors.blue : colors.textColor } }}>
                         {title}
                     </Text>
 
-                    {subTitle && <Text numberOfLines={1} style={styles.subTitle}>{subTitle}</Text>}
+                    {
+                        subTitle &&
+                        <Text
+                            numberOfLines={1}
+                            style={styles.subTitle}>
+                            {subTitle}
+                        </Text>
+                    }
+
                 </View>
 
 
@@ -94,7 +105,7 @@ const styles = StyleSheet.create({
     leftIconContainer: {
         backgroundColor: colors.extraLightGrey,
         borderRadius: 50,
-        alignItems:'center',
+        alignItems: 'center',
         justifyContent: 'center',
         width: imageSize,
         height: imageSize

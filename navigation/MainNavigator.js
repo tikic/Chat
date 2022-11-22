@@ -12,11 +12,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { getFirebaseApp } from "../utils/firebaseHelper";
 import { child, get, getDatabase, off, onValue, ref } from "firebase/database";
 import { setChatsData } from "../store/chatSlice";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, KeyboardAvoidingView, Platform, View } from "react-native";
 import colors from "../constants/colors";
 import commonStyles from "../constants/commonStyles";
 import { setStoredUsers } from "../store/userSlice";
-import { setChatMessages, setStarredMessage, setStarredMessages } from "../store/messagesSlice";
+import { setChatMessages, setStarredMessages } from "../store/messagesSlice";
 import ContactScreen from "../screens/ContactScreen";
 
 const Stack = createNativeStackNavigator();
@@ -73,16 +73,16 @@ const StackNavigator = () => {
           name="ChatSettings"
           component={ChatSettingsScreen}
           options={{
-            headerTitle: "Settings",
+            headerTitle: "",
             headerBackTitle: "Back",
+            headerShadowVisible: false
           }}
         />
-
-      <Stack.Screen
+        <Stack.Screen
           name="Contact"
           component={ContactScreen}
           options={{
-            headerTitle: "Contact Info",
+            headerTitle: "Contact info",
             headerBackTitle: "Back",
           }}
         />
@@ -133,6 +133,11 @@ const MainNavigator = (props) => {
           const data = chatSnapshot.val();
 
           if (data) {
+
+            if (!data.users.includes(userData.userId)) {
+              return;
+            }
+
             data.key = chatSnapshot.key;
 
             data.users.forEach(userId => {
@@ -173,13 +178,11 @@ const MainNavigator = (props) => {
 
     })
 
-
     const userStarredMessagesRef = child(dbRef, `userStarredMessages/${userData.userId}`);
     refs.push(userStarredMessagesRef);
-    
     onValue(userStarredMessagesRef, querySnapshot => {
       const starredMessages = querySnapshot.val() ?? {};
-      dispatch(setStarredMessages({starredMessages}))
+      dispatch(setStarredMessages({ starredMessages }));
     })
 
     return () => {
@@ -196,7 +199,11 @@ const MainNavigator = (props) => {
 
 
   return (
-    <StackNavigator />
+    <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={ Platform.OS === "ios" ? "padding" : undefined}>
+      <StackNavigator />
+    </KeyboardAvoidingView>
   );
 };
 

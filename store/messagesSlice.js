@@ -9,29 +9,26 @@ const messagesSlice = createSlice({
     reducers: {
         setChatMessages: (state, action) => {
             const existingMessages = state.messagesData;
+
             const { chatId, messagesData } = action.payload;
+
             existingMessages[chatId] = messagesData;
 
             state.messagesData = existingMessages;
         },
         addStarredMessage: (state, action) => {
-            const {starredMessagesData} = action.payload;
-            state.starredMessages[starredMessagesData.messageId] = starredMessagesData;
+            const { starredMessageData } = action.payload;
+            state.starredMessages[starredMessageData.messageId] = starredMessageData;
         },
         removeStarredMessage: (state, action) => {
-            const {messageId} = action.payload;
+            const { messageId } = action.payload;
             delete state.starredMessages[messageId];
         },
         setStarredMessages: (state, action) => {
-            const {starredMessages} = action.payload;
-            state.starredMessages = {...starredMessages};
+            const { starredMessages } = action.payload;
+            state.starredMessages = { ...starredMessages };
         },
     }
 });
-export const setChatMessages = messagesSlice.actions.setChatMessages;
-export const addStarredMessage = messagesSlice.actions.addStarredMessage;
-export const removeStarredMessage = messagesSlice.actions.removeStarredMessage;
-export const setStarredMessages = messagesSlice.actions.setStarredMessages;
-
-
+export const { setChatMessages, addStarredMessage, removeStarredMessage, setStarredMessages } = messagesSlice.actions;
 export default messagesSlice.reducer;

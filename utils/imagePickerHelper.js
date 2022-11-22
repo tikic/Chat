@@ -20,14 +20,13 @@ export const launchImagePicker = async () => {
 }
 
 export const openCamera = async () => {
-    const permmisionResult = await ImagePicker.requestCameraPermissionsAsync();
+    
+    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
 
-    if(permmisionResult.granted === false){
-        console.log('No permmision access the camera');
+    if (permissionResult.granted === false) {
+        console.log("No permission to access the camera");
         return;
     }
-
-    await checkMediaPermissions();
     
     const result = await ImagePicker.launchCameraAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
