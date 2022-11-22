@@ -20,7 +20,7 @@ const ChatSettingsScreen = props => {
     const chatId = props.route.params.chatId;
     const chatData = useSelector(state => state.chats.chatsData[chatId]);
     const userData = useSelector(state => state.auth.userData);
-    const storedUsers = useSelector(state => state.users.storedUsers)
+    const storedUsers = useSelector(state => state.users.storedUsers);
 
     const initialState = {
         inputValues: { chatName: chatData.chatName },
@@ -46,7 +46,7 @@ const ChatSettingsScreen = props => {
 
             setTimeout(() => {
                 setShowSuccessMessage(false)
-            }, 3000);
+            }, 1500);
         } catch (error) {
             console.log(error);
         }
@@ -84,34 +84,32 @@ const ChatSettingsScreen = props => {
 
 
             <View style={styles.sectionContainer}>
-                <Text>{chatData.users.length} Participants</Text>
+                <Text style={styles.heading}>{chatData.users.length} Participants</Text>
 
-                <DataItem 
-                    title='Add users'
-                    icon='plus'
-                    type='button'
+                <DataItem
+                    title="Add users"
+                    icon="plus"
+                    type="button"
                 />
 
                 {
                     chatData.users.map(uid => {
                         const currentUser = storedUsers[uid];
-                        console.log(currentUser.about)
-                        const name = `${currentUser.firstName} ${currentUser.lastName}`;
                         return <DataItem
-                               key={uid} 
-                               title={name}
-                               type={uid !== userData.userId && 'link'}
-                               subTitle={currentUser.about ? currentUser.about : undefined}
-                               image={currentUser.profilePicture}
-                               onPress={() => uid !== userData.userId && props.navigation.navigate('Contact', {uid})}
-                            />
+                            key={uid}
+                            image={currentUser.profilePicture}
+                            title={`${currentUser.firstName} ${currentUser.lastName}`}
+                            subTitle={currentUser.about}
+                            type={uid !== userData.userId && "link"}
+                            onPress={() => uid !== userData.userId && props.navigation.navigate("Contact", { uid, chatId })}
+                        />
                     })
                 }
             </View>
 
-            {
-                showSuccessMessage && <Text>Saved!</Text>
-            }
+
+
+            { showSuccessMessage && <Text>Saved!</Text> }
 
             {
                 isLoading ?
@@ -140,13 +138,13 @@ const styles = StyleSheet.create({
     },
     sectionContainer: {
         width: '100%',
-        marginTop: 10,
+        marginTop: 10
     },
     heading: {
         marginVertical: 8,
-        color: colors.text,
+        color: colors.textColor,
         fontFamily: 'bold',
-        letterSpacing: .3
+        letterSpacing: 0.3
     }
 })
 
