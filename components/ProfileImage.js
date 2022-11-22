@@ -8,6 +8,7 @@ import { launchImagePicker, uploadImageAsync } from '../utils/imagePickerHelper'
 import { updateSignedInUserData } from '../utils/actions/authActions';
 import { useDispatch } from 'react-redux';
 import { updateLoggedInUserData } from '../store/authSlice';
+import { updateChatData } from '../utils/actions/chatActions';
 
 const ProfileImage = props => {
     const dispatch = useDispatch();
@@ -20,8 +21,8 @@ const ProfileImage = props => {
     const showEditButton = props.showEditButton && props.showEditButton === true;
     const showRemoveButton = props.showRemoveButton && props.showRemoveButton === true;
 
-
     const userId = props.userId;
+    const chatId = props.chatId;
 
     const pickImage = async () => {
         try {
@@ -31,17 +32,24 @@ const ProfileImage = props => {
 
             // Upload the image
             setIsLoading(true);
-            const uploadUrl = await uploadImageAsync(tempUri);
+            const uploadUrl = await uploadImageAsync(tempUri, chatId !== undefined);
             setIsLoading(false);
 
             if (!uploadUrl) {
                 throw new Error("Could not upload image");
             }
 
-            const newData = { profilePicture: uploadUrl };
+            if (chatId) {
+                await updateChatData(chatId, userId, { chatImage: uploadUrl })
+            }
+            else {
+                const newData = { profilePicture: uploadUrl };
 
-            await updateSignedInUserData(userId, newData);
-            dispatch(updateLoggedInUserData({ newData }));
+                await updateSignedInUserData(userId, newData);
+                dispatch(updateLoggedInUserData({ newData }));
+            }
+
+            
 
             setImage({ uri: uploadUrl });
         }
@@ -54,7 +62,7 @@ const ProfileImage = props => {
     const Container = props.onPress || showEditButton ? TouchableOpacity : View;
 
     return (
-        <Container onPress={props.onPress || pickImage} style={props.style}>
+        <Container style={props.style} onPress={props.onPress || pickImage}>
 
             {
                 isLoading ?
@@ -72,15 +80,13 @@ const ProfileImage = props => {
                     <FontAwesome name="pencil" size={15} color="black" />
                 </View>
             }
-
+            
             {
                 showRemoveButton && !isLoading &&
-                <View style={styles.removeItemContainer}>
+                <View style={styles.removeIconContainer}>
                     <FontAwesome name="close" size={15} color="black" />
                 </View>
             }
-
-
 
         </Container>
     )
@@ -100,18 +106,18 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         padding: 8
     },
-    loadingContainer: {
-        justifyContent: 'center',
-        alignItems: 'center'
-    }, 
-    removeItemContainer: {
+    removeIconContainer: {
         position: 'absolute',
         bottom: -3,
-        right: 0,
+        right: -3,
         backgroundColor: colors.lightGrey,
         borderRadius: 20,
         padding: 3
     },
+    loadingContainer: {
+        justifyContent: 'center',
+        alignItems: 'center'
+    }
 })
 
 export default ProfileImage;
