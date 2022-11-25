@@ -37,13 +37,6 @@ const NewChatScreen = props => {
 
     useEffect(() => {
         props.navigation.setOptions({
-            headerLeft: () => {
-                return <HeaderButtons HeaderButtonComponent={CustomHeaderButton}>
-                    <Item
-                        title="Close"
-                        onPress={() => props.navigation.goBack()}/>
-                </HeaderButtons>
-            },
             headerRight: () => {
                 return <HeaderButtons HeaderButtonComponent={CustomHeaderButton}>
                     {

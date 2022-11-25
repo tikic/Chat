@@ -3,6 +3,7 @@ import { ActivityIndicator, Image, StyleSheet, Text, TouchableOpacity, View } fr
 import { FontAwesome } from '@expo/vector-icons';
 
 import userImage from '../assets/images/userImage.jpeg';
+import avatar from '../assets/images/avatar.png'
 import colors from '../constants/colors';
 import { launchImagePicker, uploadImageAsync } from '../utils/imagePickerHelper';
 import { updateSignedInUserData } from '../utils/actions/authActions';
@@ -13,7 +14,7 @@ import { updateChatData } from '../utils/actions/chatActions';
 const ProfileImage = props => {
     const dispatch = useDispatch();
 
-    const source = props.uri ?  { uri: props.uri } : userImage;
+    const source = props.uri ?  { uri: props.uri } : avatar;
 
     const [image, setImage] = useState(source);
     const [isLoading, setIsLoading] = useState(false);
@@ -95,8 +96,10 @@ const ProfileImage = props => {
 const styles = StyleSheet.create({
     image: {
         borderRadius: 50,
-        borderColor: colors.grey,
-        borderWidth: 1
+        borderColor: colors.nearlyWhite,
+        backgroundColor: 'red',
+        borderWidth: 1,
+        
     },
     editIconContainer: {
         position: 'absolute',

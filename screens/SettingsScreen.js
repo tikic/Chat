@@ -162,12 +162,12 @@ const SettingsScreen = props => {
             }
             </View>
 
-            <DataItem
+            {/* <DataItem
                 type={"link"}
                 title="Starred messages"
                 hideImage={true}
                 onPress={() => props.navigation.navigate("DataList", { title: "Starred messages", data: sortedStarredMessages, type: "messages" })}
-            />
+            /> */}
 
             <SubmitButton
                 title="Logout"

@@ -14,7 +14,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Feather } from "@expo/vector-icons";
+import { Feather, Entypo } from "@expo/vector-icons";
 
 import backgroundImage from "../assets/images/droplet.jpeg";
 import colors from "../constants/colors";
@@ -77,12 +77,13 @@ const ChatScreen = (props) => {
     props.navigation.setOptions({
       headerTitle: chatData.chatName ?? getChatTitleFromName(),
       headerRight: () => {
-        return <HeaderButtons HeaderButtonComponent={CustomHeaderButton}>
+        return <HeaderButtons HeaderButtonComponent={CustomHeaderButton} >
           {
             chatId && 
             <Item
+              iconType={Feather}
               title="Chat settings"
-              iconName="settings-outline"
+              iconName="info"
               onPress={() => chatData.isGroupChat ?
                 props.navigation.navigate("ChatSettings", { chatId }) :
                 props.navigation.navigate("Contact", { uid: chatUsers.find(uid => uid !== userData.userId) })}
@@ -167,11 +168,8 @@ const ChatScreen = (props) => {
   return (
     <SafeAreaView edges={["right", "left", "bottom"]} style={styles.container}>
       
-        <ImageBackground
-          source={backgroundImage}
-          style={styles.backgroundImage}
-        >
-          <PageContainer style={{ backgroundColor: 'transparent'}}>
+        <View style={styles.backgroundImage}>
+          <PageContainer style={{ backgroundColor:colors.nearlyWhite}}>
 
             {
               !chatId && <Bubble text='This is a new chat. Say hi!' type="system" />
@@ -185,9 +183,12 @@ const ChatScreen = (props) => {
               chatId && 
               <FlatList
                 ref={(ref) => flatList.current = ref}
-                onContentSizeChange={() => flatList.current.scrollToEnd({ animated: false })}
-                onLayout={() => flatList.current.scrollToEnd({ animated: false })}
-                data={chatMessages}
+                inverted
+                removeClippedSubviews={false}
+                enableEmptySections={false}
+                // onContentSizeChange={() => flatList.current.scrollToEnd({ animated: false })}
+                // onLayout={() => flatList.current.scrollToEnd({ animated: false })}
+                data={chatMessages.reverse()}
                 renderItem={(itemData) => {
                   const message = itemData.item;
 
@@ -235,72 +236,91 @@ const ChatScreen = (props) => {
             />
           }
 
-        </ImageBackground>
+        </View>
 
+
+        <View style={styles.bottomContainer}>
         <View style={styles.inputContainer}>
+      
+      <TouchableOpacity
+          style={styles.mediaButton}
+          onPress={() => {}}
+        >
+          <Feather name="smile" size={22} color={colors.grey} />
+        </TouchableOpacity>
+
+        <TextInput
+          style={styles.textbox}
+          value={messageText}
+          placeholder='Message'
+          onChangeText={(text) => setMessageText(text)}
+          onSubmitEditing={sendMessage}
+        />
+
+        <TouchableOpacity
+          style={styles.mediaButton}
+          onPress={pickImage}
+        >
+          <Entypo name="attachment" size={22} color={colors.grey}  />
+        </TouchableOpacity>
+
+        {messageText === "" && (
           <TouchableOpacity
             style={styles.mediaButton}
-            onPress={pickImage}
+            onPress={takePhoto}
           >
-            <Feather name="plus" size={24} color={colors.blue} />
+            <Feather name="camera" size={22} color={colors.grey} />
           </TouchableOpacity>
+        )}
 
-          <TextInput
-            style={styles.textbox}
-            value={messageText}
-            onChangeText={(text) => setMessageText(text)}
-            onSubmitEditing={sendMessage}
+
+       
+     
+
+          <AwesomeAlert
+            show={tempImageUri !== ""}
+            title='Send image?'
+            closeOnTouchOutside={true}
+            closeOnHardwareBackPress={false}
+            showCancelButton={true}
+            showConfirmButton={true}
+            cancelText='Cancel'
+            confirmText="Send image"
+            confirmButtonColor={colors.primary}
+            cancelButtonColor={colors.red}
+            titleStyle={styles.popupTitleStyle}
+            onCancelPressed={() => setTempImageUri("")}
+            onConfirmPressed={uploadImage}
+            onDismiss={() => setTempImageUri("")}
+            customView={(
+              <View>
+                {
+                  isLoading &&
+                  <ActivityIndicator size='small' color={colors.primary} />
+                }
+                {
+                  !isLoading && tempImageUri !== "" &&
+                  <Image source={{ uri: tempImageUri }} style={{ width: 200, height: 200 }} />
+                }
+              </View>
+            )}
           />
 
-          {messageText === "" && (
-            <TouchableOpacity
-              style={styles.mediaButton}
-              onPress={takePhoto}
-            >
-              <Feather name="camera" size={24} color={colors.blue} />
-            </TouchableOpacity>
-          )}
 
-          {messageText !== "" && (
-            <TouchableOpacity
+      </View>
+
+        <TouchableOpacity
               style={{ ...styles.mediaButton, ...styles.sendButton }}
               onPress={sendMessage}
             >
               <Feather name="send" size={20} color={"white"} />
             </TouchableOpacity>
-          )}
 
-            <AwesomeAlert
-              show={tempImageUri !== ""}
-              title='Send image?'
-              closeOnTouchOutside={true}
-              closeOnHardwareBackPress={false}
-              showCancelButton={true}
-              showConfirmButton={true}
-              cancelText='Cancel'
-              confirmText="Send image"
-              confirmButtonColor={colors.primary}
-              cancelButtonColor={colors.red}
-              titleStyle={styles.popupTitleStyle}
-              onCancelPressed={() => setTempImageUri("")}
-              onConfirmPressed={uploadImage}
-              onDismiss={() => setTempImageUri("")}
-              customView={(
-                <View>
-                  {
-                    isLoading &&
-                    <ActivityIndicator size='small' color={colors.primary} />
-                  }
-                  {
-                    !isLoading && tempImageUri !== "" &&
-                    <Image source={{ uri: tempImageUri }} style={{ width: 200, height: 200 }} />
-                  }
-                </View>
-              )}
-            />
 
 
         </View>
+
+    
     </SafeAreaView>
   );
 };
@@ -316,29 +336,40 @@ const styles = StyleSheet.create({
   backgroundImage: {
     flex: 1,
   },
+  bottomContainer: {
+    flexDirection: "row",
+    backgroundColor: 'white',
+    alignItems: "center",
+    justifyContent: "center",
+    height: 80,
+  },
   inputContainer: {
+    flex: 1,
     flexDirection: "row",
     paddingVertical: 8,
     paddingHorizontal: 10,
+    backgroundColor: 'white',
     height: 50,
+    margin: 10,
+    backgroundColor: colors.lightGrey2,
+    borderRadius: 50,
   },
   textbox: {
     flex: 1,
-    borderWidth: 1,
-    borderRadius: 50,
-    borderColor: colors.lightGrey,
-    marginHorizontal: 15,
     paddingHorizontal: 12,
   },
   mediaButton: {
     alignItems: "center",
     justifyContent: "center",
-    width: 35,
+    width: 30,
   },
   sendButton: {
-    backgroundColor: colors.blue,
+    backgroundColor: colors.peach,
     borderRadius: 50,
     padding: 8,
+    height: 50,
+    width: 50,
+    marginRight: 10
   },
   popupTitleStyle: {
     fontFamily: 'medium',

@@ -2,7 +2,7 @@ import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import React, { useEffect, useRef, useState } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, AntDesign } from "@expo/vector-icons";
 
 import ChatSettingsScreen from "../screens/ChatSettingsScreen";
 import SettingsScreen from "../screens/SettingsScreen";
@@ -30,16 +30,19 @@ const TabNavigator = () => {
   return (
     <Tab.Navigator screenOptions={{
       headerTitle: "",
-      headerShadowVisible: false  
+      headerShadowVisible: false,  
+      tabBarStyle: {borderTopColor: "transparent"},
     }}>
       <Tab.Screen
         name="ChatList"
         component={ChatListScreen}
         options={{
           tabBarLabel: "Chats",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="chatbubble-outline" size={size} color={color} />
-          ),
+          tabBarIcon: ({ focused, color, size }) => {
+            return <AntDesign name="message1" size={size} color={focused ? colors.peach : colors.grey} />
+          },
+          tabBarActiveTintColor: colors.peach,
+          tabBarInactiveTintColor: colors.grey,
         }}
       />
       <Tab.Screen
@@ -47,9 +50,11 @@ const TabNavigator = () => {
         component={SettingsScreen}
         options={{
           tabBarLabel: "Settings",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="settings-outline" size={size} color={color} />
+          tabBarIcon: ({ focused, color, size }) => (
+            <AntDesign name="user" size={size} color={focused ? colors.peach : colors.grey} />
           ),
+          tabBarActiveTintColor: colors.peach,
+          tabBarInactiveTintColor:colors.grey,
         }}
       />
     </Tab.Navigator>

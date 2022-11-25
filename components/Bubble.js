@@ -7,17 +7,8 @@ import * as Clipboard from 'expo-clipboard';
 import { Feather, FontAwesome } from '@expo/vector-icons';
 import { starMessage } from '../utils/actions/chatActions';
 import { useSelector } from 'react-redux';
+import { formatAmPm } from '../utils/timeFormats';
 
-function formatAmPm(dateString) {
-    const date = new Date(dateString);
-    var hours = date.getHours();
-    var minutes = date.getMinutes();
-    var ampm = hours >= 12 ? 'pm' : 'am';
-    hours = hours % 12;
-    hours = hours ? hours : 12; // the hour '0' should be '12'
-    minutes = minutes < 10 ? '0'+minutes : minutes;
-    return hours + ':' + minutes + ' ' + ampm;
-  }
 
 const MenuItem = props => {
 
@@ -51,7 +42,7 @@ const Bubble = props => {
     switch (type) {
         case "system":
             textStyle.color = '#65644A';
-            bubbleStyle.backgroundColor = colors.beige;
+            bubbleStyle.backgroundColor = colors.nearlyWhite;
             bubbleStyle.alignItems = 'center';
             bubbleStyle.marginTop = 10;
             break;
@@ -62,7 +53,8 @@ const Bubble = props => {
             break;
         case "myMessage":
             wrapperStyle.justifyContent = 'flex-end';
-            bubbleStyle.backgroundColor = '#E7FED6';
+            bubbleStyle.backgroundColor = colors.peach;
+            textStyle.color = 'white';
             bubbleStyle.maxWidth = '90%';
             Container = TouchableWithoutFeedback;
             isUserMessage = true;
@@ -97,10 +89,15 @@ const Bubble = props => {
     const replyingToUser = replyingTo && storedUsers[replyingTo.sentBy];
 
     return (
+
+        <View style={{marginBottom: 10, paddingHorizontal: 5}}>
         <View style={wrapperStyle}>
             <Container onLongPress={() => menuRef.current.props.ctx.menuActions.openMenu(id.current)} style={{ width: '100%' }}>
-                <View style={bubbleStyle}>
 
+         
+                  <View style={bubbleStyle}>
+
+                 
                     {
                         name && type !== "info" &&
                         <Text style={styles.name}>{name}</Text>
@@ -127,43 +124,54 @@ const Bubble = props => {
                         <Image source={{ uri: imageUrl }} style={styles.image} />
                     }
 
-                {
+
+                        <Menu name={id.current} ref={menuRef}>
+                            <MenuTrigger />
+
+                            <MenuOptions>
+                                <MenuItem text='Copy to clipboard' icon={'copy'} onSelect={() => copyToClipboard(text)} />
+                                <MenuItem text={`${isStarred ? 'Unstar' : 'Star'} message`} icon={isStarred ? 'star-o' : 'star'} iconPack={FontAwesome} onSelect={() => starMessage(messageId, chatId, userId)} />
+                                <MenuItem text='Reply' icon='arrow-left-circle' onSelect={setReply} />
+                                
+                            </MenuOptions>
+                        </Menu>
+
+                        
+                </View>
+
+             
+   
+          
+
+                
+             
+            </Container>
+        </View>
+                 {
                     dateString && type !== "info" && <View style={styles.timeContainer}>
                         { isStarred && <FontAwesome name='star' size={14} color={colors.textColor} style={{ marginRight: 5 }} /> }
                         <Text style={styles.time}>{dateString}</Text>
                     </View>
                 }
-
-                <Menu name={id.current} ref={menuRef}>
-                    <MenuTrigger />
-
-                    <MenuOptions>
-                        <MenuItem text='Copy to clipboard' icon={'copy'} onSelect={() => copyToClipboard(text)} />
-                        <MenuItem text={`${isStarred ? 'Unstar' : 'Star'} message`} icon={isStarred ? 'star-o' : 'star'} iconPack={FontAwesome} onSelect={() => starMessage(messageId, chatId, userId)} />
-                        <MenuItem text='Reply' icon='arrow-left-circle' onSelect={setReply} />
-                        
-                    </MenuOptions>
-                </Menu>
-
-
-                </View>
-            </Container>
+        
         </View>
+  
     )
 }
 
 const styles = StyleSheet.create({
     wrapperStyle: {
         flexDirection: 'row',
-        justifyContent: 'center'
+        justifyContent: 'center',
     },
     container: {
         backgroundColor: 'white',
-        borderRadius: 6,
+        // borderRadius: 6,
         padding: 5,
-        marginBottom: 10,
-        borderColor: '#E2DACC',
-        borderWidth: 1
+        borderRadius: 6,
+        borderTopRightRadius: 0
+
+
     },
     text: {
         fontFamily: 'regular',

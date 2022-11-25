@@ -2,11 +2,14 @@ import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Button, FlatList, TouchableOpacity } from 'react-native';
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
 import { useSelector } from 'react-redux';
+import FloatButton from '../components/FloatButton';
 import CustomHeaderButton from '../components/CustomHeaderButton';
 import DataItem from '../components/DataItem';
 import PageContainer from '../components/PageContainer';
 import PageTitle from '../components/PageTitle';
 import colors from '../constants/colors';
+import { formatAmPm } from '../utils/timeFormats';
+import { AntDesign } from '@expo/vector-icons';
 
 const ChatListScreen = props => {
 
@@ -23,18 +26,18 @@ const ChatListScreen = props => {
         });
     });
 
-    useEffect(() => {
-        props.navigation.setOptions({
-            headerRight: () => {
-                return <HeaderButtons HeaderButtonComponent={CustomHeaderButton}>
-                    <Item
-                        title="New chat"
-                        iconName="create-outline"
-                        onPress={() => props.navigation.navigate("NewChat")}/>
-                </HeaderButtons>
-            }
-        })
-    }, []);
+    // useEffect(() => {
+    //     props.navigation.setOptions({
+    //         headerRight: () => {
+    //             return <HeaderButtons HeaderButtonComponent={CustomHeaderButton}>
+    //                 <Item
+    //                     title="New chat"
+    //                     iconName="create-outline"
+    //                     onPress={() => props.navigation.navigate("NewChat")}/>
+    //             </HeaderButtons>
+    //         }
+    //     })
+    // }, []);
 
     useEffect(() => {
 
@@ -44,6 +47,7 @@ const ChatListScreen = props => {
 
         let chatData;
         let navigationProps;
+
 
         if (selectedUser) {
             chatData = userChats.find(cd => !cd.isGroupChat && cd.users.includes(selectedUser))
@@ -58,12 +62,18 @@ const ChatListScreen = props => {
                 chatUsers.push(userData.userId);
             }
 
+
+            const isGroupChat = selectedUserList !== undefined;
+            
             navigationProps = {
                 newChatData: {
                     users: chatUsers,
-                    isGroupChat: selectedUserList !== undefined,
-                    chatName
+                    isGroupChat
                 }
+            }
+
+            if(isGroupChat){
+                navigationProps.newChatData.chatName = chatName;
             }
         }
         
@@ -72,8 +82,19 @@ const ChatListScreen = props => {
         props.navigation.navigate("ChatScreen", navigationProps);
 
     }, [props.route?.params])
+
+    const renderLastMessagesInfo = (chatData) => {
+        const dateString = formatAmPm(chatData.updatedAt);
+
+        return(
+            <View>
+                <Text style={styles.time}>{dateString}</Text>
+                <Text></Text>
+            </View>
+        )
+    }
     
-    return <PageContainer>
+    return <PageContainer style={{paddingHorizontal: 20}}>
 
         <PageTitle text="Chats" />
 
@@ -112,10 +133,15 @@ const ChatListScreen = props => {
                                 title={title}
                                 subTitle={subTitle}
                                 image={image}
+                                type='chat'
                                 onPress={() => props.navigation.navigate("ChatScreen", { chatId })}
-                            />
+                            >{renderLastMessagesInfo(chatData)}</DataItem>
                 }}
             />
+
+                <FloatButton onPress={() => props.navigation.navigate("NewChat")}/>
+
+        
         </PageContainer>
 };
 
@@ -129,7 +155,12 @@ const styles = StyleSheet.create({
         color: colors.blue,
         fontSize: 17,
         marginBottom: 5
-    }
+    },
+    time: {
+        fontFamily: 'regular',
+        color: colors.grey,
+        letterSpacing: 0.3
+    },
 })
 
 export default ChatListScreen;

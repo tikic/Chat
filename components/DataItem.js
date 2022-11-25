@@ -66,6 +66,13 @@ const DataItem = props => {
                     </View>
                 }
 
+                {
+                    type === 'chat' && 
+                    <View>
+                        {props.children}
+                    </View>
+                }
+
             </View>
         </TouchableWithoutFeedback>
     )
@@ -75,8 +82,6 @@ const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
         paddingVertical: 7,
-        borderBottomColor: colors.extraLightGrey,
-        borderBottomWidth: 1,
         alignItems: 'center',
         minHeight: 50
     },
